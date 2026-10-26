@@ -20,10 +20,12 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from ntedu.charts import (  # noqa: E402
     attendance_trend,
+    funding_comparison,
     naplan_support,
     region_comparison,
     remoteness_comparison,
     retention_chart,
+    retention_trend,
     school_map,
     school_scatter,
     year_level_attendance,
@@ -128,6 +130,48 @@ def _schools_view(schools: pd.DataFrame) -> pd.DataFrame:
     return view
 
 
+def _headline(numbers: dict) -> None:
+    gaps = numbers["rogs_years_1_10_all_schools"]
+    remote = numbers["remoteness_2025_indigenous_years_1_10"]
+    spend = numbers["expenditure_per_fte_government_2023_24"]
+    kept = pd.DataFrame(numbers["apparent_retention_year7_to_12"])
+    nt_now = float(kept[(kept["jurisdiction"] == "NT") & (kept["calendar_year"] == 2025)]["arr_indigenous"].iloc[0])
+    nt_then = float(kept[(kept["jurisdiction"] == "NT") & (kept["calendar_year"] == 2016)]["arr_indigenous"].iloc[0])
+    wa_now = float(kept[(kept["jurisdiction"] == "WA") & (kept["calendar_year"] == 2025)]["arr_indigenous"].iloc[0])
+    drop = gaps["nt_indigenous_2016"] - gaps["nt_indigenous_2025"]
+    columns = st.columns(4)
+    columns[0].metric(
+        "NT Aboriginal attendance, 2025",
+        f"{gaps['nt_indigenous_2025']}%",
+        delta=f"{-drop:.1f} pp since 2016",
+        delta_color="inverse",
+    )
+    columns[1].metric(
+        "Very remote NT, Aboriginal",
+        f"{remote['nt_very_remote']}%",
+        delta=f"{remote['nt_very_remote'] - remote['aust_very_remote']:.1f} pp vs Australia",
+        delta_color="inverse",
+    )
+    columns[2].metric(
+        "NT Aboriginal Year 12 retention",
+        f"{nt_now:.1f}%",
+        delta=f"{wa_now - nt_now:.1f} pp behind WA",
+        delta_color="off",
+    )
+    columns[3].metric(
+        f"Funding per student, {spend['dollars']}",
+        f"${spend['total_nt']:,.0f}",
+        delta=f"${spend['total_nt'] - spend['total_aust']:,.0f} vs Australia",
+        delta_color="off",
+    )
+    st.caption(
+        f"Years 1–10, all schools. Non-Indigenous students in the NT attended {gaps['nt_non_indigenous_2025']}%, "
+        f"level with Australia ({gaps['aust_non_indigenous_2025']}%). "
+        f"NT Aboriginal apparent retention was {nt_then:.1f}% in 2016. "
+        "The school filters in the sidebar do not change these four figures."
+    )
+
+
 def _kpi_row(view: pd.DataFrame) -> None:
     published = view[view["attendance_rate"].notna()]
     weighted = _weighted(published, "attendance_rate")
@@ -152,10 +196,20 @@ def _attendance_tab(frames: dict[str, pd.DataFrame], numbers: dict) -> None:
         f"attended **{gaps['nt_non_indigenous_2025']}%**, against **{gaps['aust_non_indigenous_2025']}%** nationally."
     )
     _show(attendance_trend(frames["attendance"]))
-    st.caption("Productivity Commission, Report on Government Services 2026, Table 4A.19. Semester 1. 2020 was not published. All schools, Years 1–10.")
-    remote = frames["remoteness"][frames["remoteness"]["calendar_year"] == 2025]
+    st.caption(
+        "RoGS Table 4A.19, Semester 1, Years 1–10. Solid lines are the NT. Dashed lines are Australia. "
+        "2020 was not published. All-student series are omitted so the Aboriginal and non-Indigenous lines can be read."
+    )
+    remote_numbers = numbers["remoteness_2025_indigenous_years_1_10"]
+    remote = frames["remoteness"][
+        (frames["remoteness"]["calendar_year"] == 2025) & (frames["remoteness"]["jurisdiction"].isin(["NT", "Aust"]))
+    ]
     _show(remoteness_comparison(remote))
-    st.caption("Table 4A.16, Aboriginal and Torres Strait Islander students, 2025. Outer regional NT matches Australia. Very remote NT does not.")
+    st.caption(
+        "Table 4A.16, Aboriginal and Torres Strait Islander students, 2025. "
+        f"WA very remote is {remote_numbers['wa_very_remote_indigenous']}%; "
+        f"Queensland is {remote_numbers['qld_very_remote_indigenous']}%."
+    )
 
     regions = frames["regions"]
     region_years = sorted(int(year) for year in regions["calendar_year"].unique())
@@ -208,6 +262,7 @@ def _attendance_tab(frames: dict[str, pd.DataFrame], numbers: dict) -> None:
 
 
 def _schools_tab(view: pd.DataFrame) -> None:
+    _kpi_row(view)
     if view.empty:
         st.info("No government schools match these filters. Widen remoteness, school type, or the name search.")
         return
@@ -311,15 +366,27 @@ def _naplan_tab(naplan: pd.DataFrame, numbers: dict) -> None:
 
 
 def _gap_tab(retention: pd.DataFrame, numbers: dict) -> None:
-    latest = retention[
+    series = retention[
+        (retention["year_range"] == "Year 7/8 - Year 12")
+        & (retention["sector"] == "All affiliations")
+        & (retention["sex"] == "Persons")
+        & (retention["jurisdiction"].isin(["NT", "WA"]))
+    ]
+    _show(retention_trend(series))
+    st.caption("ABS Schools, Table 64a, Aboriginal apparent retention from Year 7/8 to Year 12. The NT line stays near 35% while Western Australia rises. Not a true cohort rate.")
+    latest = series[series["calendar_year"] == 2025]
+    others = retention[
         (retention["year_range"] == "Year 7/8 - Year 12")
         & (retention["sector"] == "All affiliations")
         & (retention["sex"] == "Persons")
         & (retention["calendar_year"] == 2025)
         & (retention["jurisdiction"].isin(["NT", "WA", "Qld", "SA"]))
     ]
-    _show(retention_chart(latest))
-    st.caption("ABS Schools 2025, Table 64a, capped apparent retention. A rate can exceed 100 where students repeat or migrate in, which is why the Bureau caps it. It is not a true cohort completion rate.")
+    _show(retention_chart(others if not others.empty else latest))
+    st.caption("Same measure in 2025, Aboriginal and non-Indigenous, for the jurisdictions nearest the comparison.")
+    spend = numbers["expenditure_per_fte_government_2023_24"]
+    _show(funding_comparison(spend["total_nt"], spend["total_aust"]))
+    st.caption(f"RoGS Table 4A.32, government recurrent funding per FTE student, {spend['dollars']}.")
     actual = pd.DataFrame(numbers["closing_the_gap_year12"]["actual"])
     actual = actual[actual["year_label"].isin(["2016", "2021"])]
     pivot = actual.pivot(index="jurisdiction", columns="year_label", values="value").reindex(
@@ -371,8 +438,11 @@ def main() -> None:
         layout="wide",
         initial_sidebar_state="expanded",
     )
-    st.title("School education in the Northern Territory")
-    st.caption("Public collections only. Retrieved 26 October 2026. Government attendance is the NT Department of Education. National comparisons are RoGS, ABS, ACARA NAPLAN, and Closing the Gap.")
+    st.title("The attendance gap is an Aboriginal gap")
+    st.caption(
+        "Public collections only. Retrieved 26 October 2026. "
+        "Government attendance is the NT Department of Education. National comparisons are RoGS, ABS, ACARA NAPLAN, and Closing the Gap."
+    )
     try:
         frames = load_frames()
         numbers = _load_numbers()
@@ -386,7 +456,7 @@ def main() -> None:
         return
 
     view = _schools_view(frames["schools"])
-    _kpi_row(view)
+    _headline(numbers)
     territory, schools, naplan, gap = st.tabs(["Territory and Australia", "Schools", "NAPLAN", "Year 12 and Closing the Gap"])
     with territory:
         _attendance_tab(frames, numbers)
