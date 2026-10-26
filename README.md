@@ -4,6 +4,18 @@ A reproducible account of attendance, NAPLAN, retention and resourcing in Northe
 
 Aboriginal and Torres Strait Islander students in the NT attended **58.3%** of Years 1–10 in 2025, down from **68.6%** in 2016. Non-Indigenous students in the NT attended **89.4%**, the same as Australia (**89.7%**). In outer regional areas the Aboriginal rate matches the national figure (**77.1%** and **77.0%**). In very remote NT it is **45.8%**. The full reading is [INSIGHTS.md](INSIGHTS.md).
 
+## Live dashboard
+
+The static dashboard is published from [`dashboard/dist`](dashboard/dist/index.html):
+
+**https://luciferdataengineer.github.io/nt-education-insights/**
+
+Each push to `main` uploads that directory and deploys it with GitHub Actions (`.github/workflows/pages.yml`). The page embeds Plotly, so it is large and does not need a Python process. The site stays off until the repository owner sets **Settings → Pages → Build and deployment → Source** to **GitHub Actions**.
+
+## Deploy the Streamlit app on Streamlit Community Cloud
+
+The interactive app is separate from the static page. On [Streamlit Community Cloud](https://share.streamlit.io), create an app from this repository and set **Main file path** to `dashboard/app.py`. Community Cloud installs the root `requirements.txt`. The bronze files are already in the repository, the app adds `src/` to its path itself, and no secrets are required.
+
 ## Architecture
 
 Bronze files are the publisher’s workbooks, saved as retrieved. Silver tables are tidy, with one grain and one meaning for a rate. Gold marts are the joins a chart needs. Quality checks fail the build when a published cell has been corrupted. Analysis writes the headline JSON and the static figures.
@@ -165,16 +177,7 @@ The Streamlit app:
 streamlit run dashboard/app.py --server.port 8765
 ```
 
-[NT school education](http://127.0.0.1:8765) is the interactive app. [Static dashboard](http://127.0.0.1:8766) is the single HTML file.
-
-### Deploy the Streamlit app for free
-
-1. Push this repository to GitHub. The bronze files are part of the commit, so the app does not need a database or an API key.
-2. Go to [share.streamlit.io](https://share.streamlit.io), create an app from the repo, and set **Main file path** to `dashboard/app.py`.
-3. The root `requirements.txt` is what Community Cloud installs. The app adds `src/` to its path itself.
-4. No secrets are required.
-
-The static file can be published as a GitHub Pages site from `dashboard/dist`, or attached to anything that serves a file. It embeds Plotly, so the page is large and works without a Python process.
+[NT school education](http://127.0.0.1:8765) is the interactive app. [Static dashboard](http://127.0.0.1:8766) is the single HTML file. The published copy is the [live dashboard](https://luciferdataengineer.github.io/nt-education-insights/).
 
 ## Screenshots
 
