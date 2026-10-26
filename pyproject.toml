@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ntedu"
+version = "1.0.0"
+description = "Northern Territory school education pipeline, analysis, and dashboard."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "duckdb>=1.1",
+    "matplotlib>=3.8",
+    "numpy>=1.26",
+    "openpyxl>=3.1",
+    "pandas>=2.2",
+    "plotly>=5.22",
+    "pyarrow>=16",
+    "rapidfuzz>=3.9",
+    "statsmodels>=0.14",
+    "streamlit>=1.36",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[project.scripts]
+ntedu = "ntedu.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+src = ["src", "tests", "dashboard"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"dashboard/app.py" = ["E402"]

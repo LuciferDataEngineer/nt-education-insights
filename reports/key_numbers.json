@@ -1,0 +1,754 @@
+{
+  "sources_note": "Rates are proportions in source tables and percentage points in this file.",
+  "rogs_years_1_10_all_schools": {
+    "nt_all_2016": 82.2,
+    "nt_all_2019": 79.7,
+    "nt_all_2022": 76.0,
+    "nt_all_2025": 76.9,
+    "aust_all_2016": 92.5,
+    "aust_all_2025": 88.8,
+    "nt_indigenous_2016": 68.6,
+    "nt_indigenous_2019": 63.3,
+    "nt_indigenous_2022": 57.8,
+    "nt_indigenous_2025": 58.3,
+    "aust_indigenous_2016": 83.4,
+    "aust_indigenous_2025": 77.2,
+    "nt_non_indigenous_2016": 91.8,
+    "nt_non_indigenous_2025": 89.4,
+    "aust_non_indigenous_2025": 89.7,
+    "year_2020": "not published in RoGS Table 4A.19"
+  },
+  "attendance_trend_nt_indigenous": {
+    "label": "OLS, NT Indigenous Years 1-10 attendance on year, published years only",
+    "n": 9,
+    "r_squared": 0.917,
+    "terms": [
+      {
+        "term": "Intercept",
+        "estimate": 2463.207,
+        "std_error": 273.662,
+        "p_value": 4.262870496320181e-05,
+        "ci_low": 1816.1,
+        "ci_high": 3110.314
+      },
+      {
+        "term": "calendar_year",
+        "estimate": -1.188,
+        "std_error": 0.135,
+        "p_value": 5.030432679438648e-05,
+        "ci_low": -1.509,
+        "ci_high": -0.868
+      }
+    ]
+  },
+  "remoteness_2025_indigenous_years_1_10": {
+    "nt_outer_regional": 77.1,
+    "nt_remote": 56.9,
+    "nt_very_remote": 45.8,
+    "aust_outer_regional": 77.0,
+    "aust_remote": 66.6,
+    "aust_very_remote": 54.2,
+    "nt_very_remote_all_students": 50.9,
+    "aust_very_remote_all_students": 65.1,
+    "nt_very_remote_non_indigenous": 86.4,
+    "aust_very_remote_non_indigenous": 86.9,
+    "qld_very_remote_indigenous": 64.3,
+    "wa_very_remote_indigenous": 53.7
+  },
+  "nt_government_regions_2024": {
+    "Darwin": {
+      "indigenous": 72.4,
+      "non_indigenous": 86.6,
+      "total": 83.9,
+      "enrolment": 11438.0
+    },
+    "Top End": {
+      "indigenous": 62.1,
+      "non_indigenous": 84.4,
+      "total": 76.5,
+      "enrolment": 9663.0
+    },
+    "Central": {
+      "indigenous": 53.2,
+      "non_indigenous": 82.4,
+      "total": 65.5,
+      "enrolment": 4146.0
+    },
+    "Big Rivers": {
+      "indigenous": 47.8,
+      "non_indigenous": 81.0,
+      "total": 56.9,
+      "enrolment": 3476.0
+    },
+    "East Arnhem": {
+      "indigenous": 39.0,
+      "non_indigenous": 81.0,
+      "total": 53.6,
+      "enrolment": 2613.0
+    },
+    "Barkly": {
+      "indigenous": 40.3,
+      "non_indigenous": 75.8,
+      "total": 44.8,
+      "enrolment": 1211.0
+    }
+  },
+  "nt_government_2024_school_panel": {
+    "schools_with_published_attendance": 140,
+    "enrolment_weighted_attendance_pct": 72.3,
+    "enrolment_in_schools_under_60_pct": 24.5,
+    "schools_under_50_pct": 47,
+    "enrolment_weighted_correlation_attendance_indigenous_pct": -0.911,
+    "enrolment_weighted_correlation_attendance_bottom_sea": -0.884,
+    "enrolment_weighted_correlation_attendance_icsea": 0.911
+  },
+  "regression_2024_government_schools": {
+    "label": "WLS, 2024 government schools with published attendance, enrolment >= 20, HC1 standard errors. Outcome is attendance in percentage points. Bottom SEA quarter is the share of students in the lowest parental SEA quarter.",
+    "n": 128,
+    "r_squared": 0.859,
+    "terms": [
+      {
+        "term": "Intercept",
+        "estimate": 95.574,
+        "std_error": 2.129,
+        "p_value": 0.0,
+        "ci_low": 91.402,
+        "ci_high": 99.746
+      },
+      {
+        "term": "C(geolocation, Treatment(reference='Outer Regional'))[T.Remote]",
+        "estimate": -1.149,
+        "std_error": 2.617,
+        "p_value": 0.6606565075176752,
+        "ci_low": -6.278,
+        "ci_high": 3.98
+      },
+      {
+        "term": "C(geolocation, Treatment(reference='Outer Regional'))[T.Very Remote]",
+        "estimate": -12.662,
+        "std_error": 3.903,
+        "p_value": 0.0011782088172622937,
+        "ci_low": -20.312,
+        "ci_high": -5.012
+      },
+      {
+        "term": "indigenous_pct",
+        "estimate": -0.318,
+        "std_error": 0.096,
+        "p_value": 0.0009625525132551971,
+        "ci_low": -0.506,
+        "ci_high": -0.129
+      },
+      {
+        "term": "bottom_sea_pct",
+        "estimate": -0.119,
+        "std_error": 0.095,
+        "p_value": 0.2130766886455595,
+        "ci_low": -0.306,
+        "ci_high": 0.068
+      }
+    ]
+  },
+  "regression_2024_very_remote_only": {
+    "label": "Same specification inside Very Remote schools only, so the Indigenous coefficient is not just a remoteness proxy.",
+    "n": 63,
+    "r_squared": 0.652,
+    "terms": [
+      {
+        "term": "Intercept",
+        "estimate": 96.45,
+        "std_error": 5.47,
+        "p_value": 1.392249312947497e-69,
+        "ci_low": 85.729,
+        "ci_high": 107.171
+      },
+      {
+        "term": "indigenous_pct",
+        "estimate": -0.279,
+        "std_error": 0.361,
+        "p_value": 0.4387773062583,
+        "ci_low": -0.986,
+        "ci_high": 0.428
+      },
+      {
+        "term": "bottom_sea_pct",
+        "estimate": -0.323,
+        "std_error": 0.422,
+        "p_value": 0.4433235683333139,
+        "ci_low": -1.149,
+        "ci_high": 0.503
+      }
+    ]
+  },
+  "schools_below_prediction": [
+    {
+      "school_name": "Top End School of Flexible Learning",
+      "geolocation": "Outer Regional",
+      "enrolment": 66.0,
+      "attendance_pct": 41.7,
+      "indigenous_pct": 78.0,
+      "bottom_sea_pct": 70.0,
+      "residual_pp": -20.8
+    },
+    {
+      "school_name": "Gunbalanya School",
+      "geolocation": "Remote",
+      "enrolment": 234.0,
+      "attendance_pct": 35.0,
+      "indigenous_pct": 96.0,
+      "bottom_sea_pct": 89.0,
+      "residual_pp": -18.4
+    },
+    {
+      "school_name": "Ampilatwatja School",
+      "geolocation": "Very Remote",
+      "enrolment": 124.0,
+      "attendance_pct": 23.5,
+      "indigenous_pct": 100.0,
+      "bottom_sea_pct": 98.0,
+      "residual_pp": -16.0
+    },
+    {
+      "school_name": "Alekarenge School",
+      "geolocation": "Very Remote",
+      "enrolment": 78.0,
+      "attendance_pct": 23.9,
+      "indigenous_pct": 100.0,
+      "bottom_sea_pct": 97.0,
+      "residual_pp": -15.7
+    },
+    {
+      "school_name": "Shepherdson College",
+      "geolocation": "Very Remote",
+      "enrolment": 538.0,
+      "attendance_pct": 29.4,
+      "indigenous_pct": 96.0,
+      "bottom_sea_pct": 83.0,
+      "residual_pp": -13.2
+    }
+  ],
+  "schools_above_prediction": [
+    {
+      "school_name": "Milikapiti School",
+      "geolocation": "Very Remote",
+      "enrolment": 59.0,
+      "attendance_pct": 72.8,
+      "indigenous_pct": 98.0,
+      "bottom_sea_pct": 91.0,
+      "residual_pp": 31.8
+    },
+    {
+      "school_name": "Pularumpi School",
+      "geolocation": "Very Remote",
+      "enrolment": 50.0,
+      "attendance_pct": 64.5,
+      "indigenous_pct": 100.0,
+      "bottom_sea_pct": 84.0,
+      "residual_pp": 23.3
+    },
+    {
+      "school_name": "Kintore Street School",
+      "geolocation": "Remote",
+      "enrolment": 66.0,
+      "attendance_pct": 76.2,
+      "indigenous_pct": 94.0,
+      "bottom_sea_pct": 60.0,
+      "residual_pp": 18.8
+    },
+    {
+      "school_name": "Canteen Creek School",
+      "geolocation": "Very Remote",
+      "enrolment": 56.0,
+      "attendance_pct": 57.3,
+      "indigenous_pct": 98.0,
+      "bottom_sea_pct": 99.0,
+      "residual_pp": 17.3
+    },
+    {
+      "school_name": "Elliott School",
+      "geolocation": "Very Remote",
+      "enrolment": 83.0,
+      "attendance_pct": 57.4,
+      "indigenous_pct": 99.0,
+      "bottom_sea_pct": 95.0,
+      "residual_pp": 17.2
+    }
+  ],
+  "naplan_2025_year3_reading": {
+    "nt_all": {
+      "mean_score": 322.5,
+      "moe": 15.1,
+      "needs_additional_support_pct": 38.2,
+      "absent_pct": 12.0,
+      "participation_pct": 85.5,
+      "enrolled_students": 3371
+    },
+    "aust_all": {
+      "mean_score": 402.2,
+      "moe": 1.2,
+      "needs_additional_support_pct": 10.8,
+      "absent_pct": 1.6,
+      "participation_pct": 95.5,
+      "enrolled_students": 324404
+    },
+    "nt_indigenous": {
+      "mean_score": 237.5,
+      "moe": 11.6,
+      "needs_additional_support_pct": 71.7,
+      "absent_pct": 26.1,
+      "participation_pct": 71.7,
+      "enrolled_students": 1366
+    },
+    "aust_indigenous": {
+      "mean_score": 327.2,
+      "moe": 2.5,
+      "needs_additional_support_pct": 33.9,
+      "absent_pct": 6.4,
+      "participation_pct": 88.1,
+      "enrolled_students": 22514
+    },
+    "nt_indigenous_very_remote": {
+      "mean_score": 200.0,
+      "moe": 11.0,
+      "needs_additional_support_pct": 89.6,
+      "absent_pct": 38.0,
+      "participation_pct": 61.5,
+      "enrolled_students": 624
+    },
+    "aust_indigenous_very_remote": {
+      "mean_score": 232.4,
+      "moe": 9.3,
+      "needs_additional_support_pct": 75.8,
+      "absent_pct": 28.9,
+      "participation_pct": 68.4,
+      "enrolled_students": 1672
+    },
+    "nt_non_indigenous": {
+      "mean_score": 380.7,
+      "moe": 8.9,
+      "needs_additional_support_pct": 15.0,
+      "absent_pct": 2.1,
+      "participation_pct": 95.2,
+      "enrolled_students": 1980
+    },
+    "aust_non_indigenous": {
+      "mean_score": 407.9,
+      "moe": 1.1,
+      "needs_additional_support_pct": 9.0,
+      "absent_pct": 1.2,
+      "participation_pct": 96.1,
+      "enrolled_students": 295803
+    }
+  },
+  "naplan_2025_year9_reading": {
+    "nt_indigenous": {
+      "mean_score": 418.3,
+      "moe": 18.2,
+      "needs_additional_support_pct": 67.3,
+      "absent_pct": 47.0,
+      "participation_pct": 51.8,
+      "enrolled_students": 1411
+    },
+    "aust_indigenous": {
+      "mean_score": 501.6,
+      "moe": 4.0,
+      "needs_additional_support_pct": 31.0,
+      "absent_pct": 22.6,
+      "participation_pct": 71.4,
+      "enrolled_students": 22221
+    },
+    "nt_all": {
+      "mean_score": 498.7,
+      "moe": 22.4,
+      "needs_additional_support_pct": 36.0,
+      "absent_pct": 23.4,
+      "participation_pct": 75.5,
+      "enrolled_students": 3232
+    },
+    "aust_all": {
+      "mean_score": 567.7,
+      "moe": 1.8,
+      "needs_additional_support_pct": 9.8,
+      "absent_pct": 5.9,
+      "participation_pct": 90.7,
+      "enrolled_students": 327166
+    }
+  },
+  "naplan_2025_year3_numeracy": {
+    "nt_indigenous": {
+      "mean_score": 261.3,
+      "moe": 10.8,
+      "needs_additional_support_pct": 73.5,
+      "absent_pct": 27.6,
+      "participation_pct": 70.4,
+      "enrolled_students": 1366
+    },
+    "aust_indigenous": {
+      "mean_score": 342.5,
+      "moe": 2.2,
+      "needs_additional_support_pct": 32.2,
+      "absent_pct": 8.1,
+      "participation_pct": 86.5,
+      "enrolled_students": 22506
+    },
+    "nt_indigenous_very_remote": {
+      "mean_score": 223.7,
+      "moe": 9.1,
+      "needs_additional_support_pct": 94.5,
+      "absent_pct": 40.7,
+      "participation_pct": 59.0,
+      "enrolled_students": 624
+    }
+  },
+  "naplan_nt_indigenous_year3_reading_by_year": {
+    "2023": {
+      "mean_score": 248.1,
+      "moe": 15.6,
+      "needs_additional_support_pct": 63.6,
+      "absent_pct": 31.7,
+      "participation_pct": 64.7,
+      "enrolled_students": 1376
+    },
+    "2024": {
+      "mean_score": 242.8,
+      "moe": 14.9,
+      "needs_additional_support_pct": 65.2,
+      "absent_pct": 32.6,
+      "participation_pct": 64.7,
+      "enrolled_students": 1384
+    },
+    "2025": {
+      "mean_score": 237.5,
+      "moe": 11.6,
+      "needs_additional_support_pct": 71.7,
+      "absent_pct": 26.1,
+      "participation_pct": 71.7,
+      "enrolled_students": 1366
+    },
+    "2026": {
+      "mean_score": 241.7,
+      "moe": 12.1,
+      "needs_additional_support_pct": 67.6,
+      "absent_pct": 35.3,
+      "participation_pct": 61.0,
+      "enrolled_students": 1322
+    }
+  },
+  "closing_the_gap_year12": {
+    "actual": [
+      {
+        "year_label": "2021",
+        "jurisdiction": "NSW",
+        "value": 69.3
+      },
+      {
+        "year_label": "2016",
+        "jurisdiction": "NSW",
+        "value": 64.3
+      },
+      {
+        "year_label": "2021",
+        "jurisdiction": "Vic",
+        "value": 72.6
+      },
+      {
+        "year_label": "2016",
+        "jurisdiction": "Vic",
+        "value": 69.6
+      },
+      {
+        "year_label": "2021",
+        "jurisdiction": "Qld",
+        "value": 75.0
+      },
+      {
+        "year_label": "2016",
+        "jurisdiction": "Qld",
+        "value": 69.5
+      },
+      {
+        "year_label": "2021",
+        "jurisdiction": "WA",
+        "value": 61.1
+      },
+      {
+        "year_label": "2016",
+        "jurisdiction": "WA",
+        "value": 57.4
+      },
+      {
+        "year_label": "2021",
+        "jurisdiction": "SA",
+        "value": 64.6
+      },
+      {
+        "year_label": "2016",
+        "jurisdiction": "SA",
+        "value": 61.4
+      },
+      {
+        "year_label": "2021",
+        "jurisdiction": "Tas",
+        "value": 68.1
+      },
+      {
+        "year_label": "2016",
+        "jurisdiction": "Tas",
+        "value": 62.7
+      },
+      {
+        "year_label": "2021",
+        "jurisdiction": "ACT",
+        "value": 82.1
+      },
+      {
+        "year_label": "2016",
+        "jurisdiction": "ACT",
+        "value": 77.4
+      },
+      {
+        "year_label": "2021",
+        "jurisdiction": "NT",
+        "value": 40.2
+      },
+      {
+        "year_label": "2016",
+        "jurisdiction": "NT",
+        "value": 37.5
+      },
+      {
+        "year_label": "2021",
+        "jurisdiction": "Aust",
+        "value": 68.1
+      },
+      {
+        "year_label": "2016",
+        "jurisdiction": "Aust",
+        "value": 63.2
+      }
+    ],
+    "path_2031": [
+      {
+        "description_7": "Trajectory",
+        "jurisdiction": "NSW",
+        "value": null
+      },
+      {
+        "description_7": "Linear regression estimates",
+        "jurisdiction": "NSW",
+        "value": 79.4
+      },
+      {
+        "description_7": "Trajectory",
+        "jurisdiction": "Vic",
+        "value": null
+      },
+      {
+        "description_7": "Linear regression estimates",
+        "jurisdiction": "Vic",
+        "value": 78.6
+      },
+      {
+        "description_7": "Trajectory",
+        "jurisdiction": "Qld",
+        "value": null
+      },
+      {
+        "description_7": "Linear regression estimates",
+        "jurisdiction": "Qld",
+        "value": 85.9
+      },
+      {
+        "description_7": "Trajectory",
+        "jurisdiction": "WA",
+        "value": null
+      },
+      {
+        "description_7": "Linear regression estimates",
+        "jurisdiction": "WA",
+        "value": 68.4
+      },
+      {
+        "description_7": "Trajectory",
+        "jurisdiction": "SA",
+        "value": null
+      },
+      {
+        "description_7": "Linear regression estimates",
+        "jurisdiction": "SA",
+        "value": 70.9
+      },
+      {
+        "description_7": "Trajectory",
+        "jurisdiction": "Tas",
+        "value": null
+      },
+      {
+        "description_7": "Linear regression estimates",
+        "jurisdiction": "Tas",
+        "value": 78.8
+      },
+      {
+        "description_7": "Trajectory",
+        "jurisdiction": "ACT",
+        "value": null
+      },
+      {
+        "description_7": "Linear regression estimates",
+        "jurisdiction": "ACT",
+        "value": 91.5
+      },
+      {
+        "description_7": "Trajectory",
+        "jurisdiction": "NT",
+        "value": null
+      },
+      {
+        "description_7": "Linear regression estimates",
+        "jurisdiction": "NT",
+        "value": 45.5
+      },
+      {
+        "description_7": "Trajectory",
+        "jurisdiction": "Aust",
+        "value": 96.0
+      },
+      {
+        "description_7": "Linear regression estimates",
+        "jurisdiction": "Aust",
+        "value": 77.9
+      }
+    ],
+    "target_national": 96.0
+  },
+  "apparent_retention_year7_to_12": [
+    {
+      "calendar_year": 2025,
+      "jurisdiction": "Qld",
+      "arr_indigenous": 64.7,
+      "arr_non_indigenous": 84.4,
+      "arr_all": 82.7
+    },
+    {
+      "calendar_year": 2025,
+      "jurisdiction": "SA",
+      "arr_indigenous": 70.4,
+      "arr_non_indigenous": 91.4,
+      "arr_all": 90.3
+    },
+    {
+      "calendar_year": 2025,
+      "jurisdiction": "WA",
+      "arr_indigenous": 69.7,
+      "arr_non_indigenous": 86.5,
+      "arr_all": 85.3
+    },
+    {
+      "calendar_year": 2025,
+      "jurisdiction": "NT",
+      "arr_indigenous": 34.9,
+      "arr_non_indigenous": 67.3,
+      "arr_all": 54.7
+    },
+    {
+      "calendar_year": 2021,
+      "jurisdiction": "Qld",
+      "arr_indigenous": 67.0,
+      "arr_non_indigenous": 86.9,
+      "arr_all": 85.3
+    },
+    {
+      "calendar_year": 2021,
+      "jurisdiction": "SA",
+      "arr_indigenous": 79.2,
+      "arr_non_indigenous": 91.7,
+      "arr_all": 91.1
+    },
+    {
+      "calendar_year": 2021,
+      "jurisdiction": "WA",
+      "arr_indigenous": 56.3,
+      "arr_non_indigenous": 85.4,
+      "arr_all": 83.6
+    },
+    {
+      "calendar_year": 2021,
+      "jurisdiction": "NT",
+      "arr_indigenous": 33.2,
+      "arr_non_indigenous": 75.4,
+      "arr_all": 56.8
+    },
+    {
+      "calendar_year": 2016,
+      "jurisdiction": "Qld",
+      "arr_indigenous": 72.0,
+      "arr_non_indigenous": 89.9,
+      "arr_all": 88.6
+    },
+    {
+      "calendar_year": 2016,
+      "jurisdiction": "SA",
+      "arr_indigenous": 93.8,
+      "arr_non_indigenous": 97.6,
+      "arr_all": 97.5
+    },
+    {
+      "calendar_year": 2016,
+      "jurisdiction": "WA",
+      "arr_indigenous": 44.7,
+      "arr_non_indigenous": 82.8,
+      "arr_all": 80.3
+    },
+    {
+      "calendar_year": 2016,
+      "jurisdiction": "NT",
+      "arr_indigenous": 35.2,
+      "arr_non_indigenous": 72.5,
+      "arr_all": 56.7
+    }
+  ],
+  "enrolment_fte": {
+    "nt_2016": {
+      "fte_all": 41069.0,
+      "fte_indigenous": 16470.0,
+      "indigenous_share_pct": 40.1
+    },
+    "nt_2025": {
+      "fte_all": 39866.0,
+      "fte_indigenous": 15502.0,
+      "indigenous_share_pct": 38.9
+    },
+    "states_sum_2025": {
+      "fte_all": 4155019.0,
+      "fte_indigenous": 282964.0,
+      "indigenous_share_pct": 6.8
+    }
+  },
+  "student_teacher_ratio_government_2025": {
+    "NT": 10.7,
+    "Aust": 13.0
+  },
+  "expenditure_per_fte_government_2023_24": {
+    "total_nt": 32223.0,
+    "total_aust": 26140.0,
+    "australian_government_nt": 8787.0,
+    "australian_government_aust": 4277.0,
+    "dollars": "2023-24"
+  },
+  "nt_school_count_abs_2025": 194,
+  "acara_nt_2025": [
+    {
+      "calendar_year": 2025,
+      "state": "NT",
+      "schools": 194,
+      "enrolments": 40136.0,
+      "indigenous_pct_weighted": 41.265472393860875,
+      "icsea_weighted": 903.3027041873705,
+      "bottom_sea_pct_weighted": 42.3633798596719,
+      "very_remote_enrolment_share": 0.18975483356587602,
+      "remote_enrolment_share": 0.3879061191947379,
+      "government_enrolment_share": 0.7193791110225234
+    }
+  ],
+  "model_schools": 128
+}
