@@ -1,5 +1,7 @@
 # Northern Territory school education
 
+[![Live dashboard](https://img.shields.io/badge/Live%20dashboard-GitHub%20Pages-2ea44f)](https://luciferdataengineer.github.io/nt-education-insights/)
+
 A reproducible account of attendance, NAPLAN, retention and resourcing in Northern Territory schools, set against the rest of Australia. The grain runs from a national time series down to a government school. The numbers are the published ones. Nothing in the marts is imputed to fill a suppressed cell.
 
 Aboriginal and Torres Strait Islander students in the NT attended **58.3%** of Years 1–10 in 2025, down from **68.6%** in 2016. Non-Indigenous students in the NT attended **89.4%**, the same as Australia (**89.7%**). In outer regional areas the Aboriginal rate matches the national figure (**77.1%** and **77.0%**). In very remote NT it is **45.8%**. The full reading is [INSIGHTS.md](INSIGHTS.md).
