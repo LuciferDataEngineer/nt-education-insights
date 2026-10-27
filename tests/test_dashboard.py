@@ -9,5 +9,8 @@ def test_static_dashboard_contains_the_2025_attendance_rate():
     assert path.name == "index.html"
     assert "58.3%" in html
     assert "45.8%" in html
+    assert "Key decision metrics" in html
+    assert "1.19 pts/yr" in html
+    assert "What stakeholders should act on" in html
     assert "plotly" in html.lower()
     assert len(html) > 100_000

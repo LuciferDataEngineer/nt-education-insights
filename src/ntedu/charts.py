@@ -5,18 +5,27 @@ from __future__ import annotations
 import pandas as pd
 import plotly.graph_objects as go
 
-INK = "#1c2430"
-MUTED = "#5e6a78"
-GRID = "#ece7df"
-CRIMSON = "#b42318"
-TEAL = "#0f6e56"
-ROSE = "#d08a78"
-SLATE = "#7f97a8"
-NAVY = "#1f4e79"
-OCHRE = "#c46b2d"
-SAND = "#f4f1ea"
+INK = "#0B2545"
+MUTED = "#3E4C59"
+GRID = "#E2E8EE"
+NAVY = "#0B2545"
+TEAL = "#0F6E6E"
+TERRACOTTA = "#A84E1E"
+GREY = "#4A5560"
+GREY_SOFT = "#6A7580"
+DEEP = "#8C3A22"
+STEEL = "#3D6F8F"
+CONCERN = "#9B2C2C"
+WATCH = "#C58A12"
+GOOD = "#1F7A4D"
+# Names kept so a population series stays one colour: terracotta is NT Aboriginal, grey is Australia.
+CRIMSON = TERRACOTTA
+ROSE = GREY
+SLATE = GREY_SOFT
+OCHRE = TERRACOTTA
+SAND = "#F4F6F8"
 
-GEO_COLOURS = {"Outer Regional": NAVY, "Remote": OCHRE, "Very Remote": CRIMSON}
+GEO_COLOURS = {"Outer Regional": NAVY, "Remote": STEEL, "Very Remote": DEEP}
 
 FONT = "Inter, Segoe UI, Helvetica Neue, Arial, sans-serif"
 
@@ -107,8 +116,13 @@ def attendance_trend(frame: pd.DataFrame) -> go.Figure:
 
 def remoteness_comparison(frame: pd.DataFrame) -> go.Figure:
     order = ["Outer regional", "Remote", "Very remote"]
-    colours = {"NT": CRIMSON, "Aust": NAVY, "WA": OCHRE, "Qld": TEAL}
-    names = {"NT": "NT", "Aust": "Australia", "WA": "WA", "Qld": "Qld"}
+    colours = {"NT": TERRACOTTA, "Aust": GREY, "WA": NAVY, "Qld": TEAL}
+    names = {
+        "NT": "NT Aboriginal",
+        "Aust": "Australia Aboriginal",
+        "WA": "WA Aboriginal",
+        "Qld": "Qld Aboriginal",
+    }
     present = [code for code in ["NT", "Aust", "WA", "Qld"] if code in set(frame["jurisdiction"])]
     figure = go.Figure()
     for jurisdiction in present:
@@ -201,7 +215,7 @@ def school_map(frame: pd.DataFrame) -> go.Figure:
             marker=dict(
                 size=(plotted["enrolment"].clip(upper=900) / 35).clip(lower=7),
                 color=plotted["attendance_rate"] * 100,
-                colorscale=[[0, CRIMSON], [0.55, OCHRE], [1, TEAL]],
+                colorscale=[[0, CONCERN], [0.55, WATCH], [1, GOOD]],
                 cmin=30,
                 cmax=95,
                 colorbar=dict(title="Attendance %", thickness=12, len=0.6),
@@ -262,7 +276,7 @@ def naplan_support(frame: pd.DataFrame) -> go.Figure:
         absent = row["absent_pct"].iloc[0]
         absences.append(float(absent) if pd.notna(absent) else float("nan"))
         if "very remote" in label:
-            colours.append("#7f1d1d")
+            colours.append(DEEP)
         elif label == "NT, Indigenous":
             colours.append(CRIMSON)
         elif "non-Indigenous" in label:
@@ -344,7 +358,7 @@ def funding_comparison(nt_dollars: float, australia_dollars: float) -> go.Figure
         go.Bar(
             x=labels,
             y=values,
-            marker_color=[CRIMSON, NAVY],
+            marker_color=[NAVY, GREY],
             text=[f"${value:,.0f}" for value in values],
             textposition="outside",
             cliponaxis=False,

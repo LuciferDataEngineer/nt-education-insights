@@ -18,6 +18,7 @@ from ntedu.charts import (
     school_scatter,
 )
 from ntedu.config import DASHBOARD_DIST, FIGURES, GOLD, SILVER
+from ntedu.decisions import decision_html
 
 REPO = "https://github.com/LuciferDataEngineer/nt-education-insights"
 README = f"{REPO}/blob/main/README.md"
@@ -34,14 +35,18 @@ TEMPLATE = """<!DOCTYPE html>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@420;560;680&display=swap" rel="stylesheet"/>
 <style>
   :root {{
-    --ink: #1c2430;
-    --muted: #5e6a78;
-    --bg: #f3f1ec;
+    --ink: #0B2545;
+    --muted: #3E4C59;
+    --bg: #F4F6F8;
     --card: #ffffff;
-    --line: #e6e1d8;
-    --crimson: #b42318;
-    --teal: #0f6e56;
-    --navy: #1f4e79;
+    --line: #D5DDE5;
+    --navy: #0B2545;
+    --teal: #0F6E6E;
+    --terracotta: #A84E1E;
+    --grey: #4A5560;
+    --concern: #9B2C2C;
+    --watch: #A56B00;
+    --good: #1F7A4D;
   }}
   * {{ box-sizing: border-box; }}
   body {{
@@ -53,10 +58,15 @@ TEMPLATE = """<!DOCTYPE html>
     line-height: 1.45;
   }}
   .wrap {{ width: min(1120px, calc(100% - 32px)); margin: 0 auto; }}
-  header {{ padding: 36px 0 8px; }}
+  header.band {{
+    background: var(--navy);
+    color: #ffffff;
+    padding: 36px 0 28px;
+    border-bottom: 6px solid var(--terracotta);
+  }}
   .eyebrow {{
     margin: 0 0 10px;
-    color: var(--muted);
+    color: #F3D7C8;
     font-size: 12px;
     font-weight: 680;
     letter-spacing: 0.08em;
@@ -64,39 +74,109 @@ TEMPLATE = """<!DOCTYPE html>
   }}
   h1 {{
     margin: 0;
-    max-width: 16ch;
+    max-width: 18ch;
     font-size: clamp(34px, 5vw, 52px);
     line-height: 1.02;
     letter-spacing: -0.038em;
     font-weight: 680;
+    color: #ffffff;
   }}
-  .lede {{ max-width: 40rem; margin: 14px 0 0; font-size: 18px; line-height: 1.45; }}
-  .kpis {{
+  .lede {{ max-width: 42rem; margin: 14px 0 0; color: #E7EEF6; font-size: 18px; line-height: 1.45; }}
+  .key {{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    list-style: none;
+    margin: 22px 0 0;
+    padding: 0;
+    color: #F4F7FB;
+    font-size: 13px;
+    font-weight: 560;
+  }}
+  .key li {{ display: flex; align-items: center; gap: 8px; }}
+  .swatch {{ width: 14px; height: 14px; border-radius: 3px; display: inline-block; }}
+  .decisions {{ padding: 28px 0 8px; }}
+  .decisions h2 {{
+    margin: 0;
+    font-size: clamp(26px, 3vw, 32px);
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+  }}
+  .metric-grid {{
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: 1fr 1fr;
     gap: 12px;
-    margin: 28px 0 4px;
+    margin-top: 16px;
   }}
-  .kpi {{
+  .metric {{
     background: var(--card);
     border: 1px solid var(--line);
-    border-top: 3px solid var(--crimson);
+    border-top: 4px solid var(--concern);
     border-radius: 14px;
     padding: 14px 16px 16px;
-    min-height: 100%;
   }}
-  .kpi.teal {{ border-top-color: var(--teal); }}
-  .kpi.navy {{ border-top-color: var(--navy); }}
-  .kpi .value {{
-    margin: 0;
-    font-size: clamp(28px, 3vw, 36px);
+  .metric.watch {{ border-top-color: var(--watch); background: #FFFCF4; }}
+  .metric.concern {{ border-top-color: var(--concern); background: #FFF8F7; }}
+  .metric.ontrack {{ border-top-color: var(--good); background: #F4FBF7; }}
+  .metric .value {{
+    margin: 8px 0 0;
+    font-size: clamp(28px, 3vw, 34px);
     font-weight: 680;
     letter-spacing: -0.04em;
     font-variant-numeric: tabular-nums;
     line-height: 1;
+    color: var(--ink);
   }}
-  .kpi .label {{ margin: 8px 0 0; font-size: 13px; font-weight: 680; line-height: 1.3; }}
-  .kpi .so {{ margin: 8px 0 0; color: var(--muted); font-size: 13px; line-height: 1.4; }}
+  .metric .label {{ margin: 8px 0 0; font-size: 14px; font-weight: 680; line-height: 1.3; }}
+  .metric .trend, .metric .gap {{ margin: 6px 0 0; font-size: 13px; line-height: 1.4; }}
+  .metric .trend {{ color: var(--ink); font-weight: 560; }}
+  .metric .gap {{ color: var(--muted); }}
+  .metric .action {{ margin: 8px 0 0; font-size: 14px; line-height: 1.45; }}
+  .pill {{
+    display: inline-block;
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 680;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }}
+  .pill.concern {{ background: #F8E8E6; color: #7A1F1A; }}
+  .pill.watch {{ background: #FBF3D5; color: #5C4300; }}
+  .pill.ontrack {{ background: #E7F5EC; color: #0E5C36; }}
+  .decision-split {{
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 12px;
+    margin-top: 12px;
+  }}
+  .panel {{
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px;
+  }}
+  .panel h3 {{ margin: 0 0 8px; font-size: 18px; letter-spacing: -0.02em; }}
+  .recs {{ margin: 0; padding-left: 18px; }}
+  .recs li {{ margin: 0 0 10px; font-size: 14px; line-height: 1.45; }}
+  .table-scroll {{ overflow-x: auto; }}
+  table.gaps {{ width: 100%; border-collapse: collapse; font-size: 13px; }}
+  table.gaps th {{
+    text-align: left;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 2px solid var(--line);
+    padding: 6px 8px;
+    white-space: nowrap;
+  }}
+  table.gaps td {{
+    border-bottom: 1px solid var(--line);
+    padding: 8px;
+    vertical-align: top;
+  }}
+  table.gaps td.num {{ font-variant-numeric: tabular-nums; white-space: nowrap; }}
   .grid {{
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -152,22 +232,31 @@ TEMPLATE = """<!DOCTYPE html>
   footer a {{ color: var(--navy); }}
   .links {{ display: flex; flex-wrap: wrap; gap: 14px; margin: 12px 0; font-weight: 680; }}
   @media (max-width: 860px) {{
-    .kpis, .grid {{ grid-template-columns: 1fr; }}
+    .metric-grid, .decision-split, .grid {{ grid-template-columns: 1fr; }}
     .card.wide {{ grid-column: auto; }}
-    header {{ padding-top: 24px; }}
+    header.band {{ padding-top: 24px; }}
     .lede {{ font-size: 16px; }}
   }}
 </style>
 </head>
 <body>
-<header class="wrap">
-  <p class="eyebrow">Northern Territory school education · public data · 26 October 2026</p>
-  <h1>The attendance gap is an Aboriginal gap.</h1>
-  <p class="lede">{lede}</p>
-  <div class="kpis">
-    {kpis}
+<header class="band">
+  <div class="wrap">
+    <p class="eyebrow">Northern Territory school education · public data · 26 October 2026</p>
+    <h1>The attendance gap is an Aboriginal gap.</h1>
+    <p class="lede">{lede}</p>
+    <ul class="key">
+      <li><i class="swatch" style="background:#A84E1E"></i>NT Aboriginal</li>
+      <li><i class="swatch" style="background:#0F6E6E"></i>NT non-Indigenous</li>
+      <li><i class="swatch" style="background:#4A5560"></i>Australia</li>
+      <li><i class="swatch" style="background:#0B2545"></i>WA retention, outer regional schools, NT resourcing</li>
+      <li><i class="swatch" style="background:#1F7A4D"></i>On track</li>
+      <li><i class="swatch" style="background:#C58A12"></i>Watch</li>
+      <li><i class="swatch" style="background:#9B2C2C"></i>Concern</li>
+    </ul>
   </div>
 </header>
+{decision}
 <main class="wrap grid">
   {sections}
 </main>
@@ -196,14 +285,6 @@ def _load_numbers() -> dict:
     return json.loads(text.replace(": NaN", ": null").replace(": nan", ": null"))
 
 
-def _kpi(value: str, label: str, so_what: str, tone: str = "") -> str:
-    klass = f"kpi {tone}".strip()
-    return (
-        f'<article class="{klass}"><p class="value">{value}</p>'
-        f'<p class="label">{label}</p><p class="so">{so_what}</p></article>'
-    )
-
-
 def _section(title: str, takeaway: str, html: str, *, wide: bool = False) -> str:
     klass = "card wide" if wide else "card"
     return f'<section class="{klass}"><h2>{title}</h2><p class="take">{takeaway}</p><div class="chart">{html}</div></section>'
@@ -215,7 +296,7 @@ def _legend_html(figure) -> str:
         name = getattr(trace, "name", None)
         if not name or getattr(trace, "showlegend", True) is False:
             continue
-        color = "#1c2430"
+        color = "#0B2545"
         kind = "bar" if getattr(trace, "type", "") == "bar" else "line"
         marker = getattr(trace, "marker", None)
         line = getattr(trace, "line", None)
@@ -267,7 +348,6 @@ def build_static_dashboard() -> Path:
     retention_rows = pd.DataFrame(numbers["apparent_retention_year7_to_12"])
     nt_ret = retention_rows[retention_rows["jurisdiction"] == "NT"].set_index("calendar_year")
     wa_ret = retention_rows[retention_rows["jurisdiction"] == "WA"].set_index("calendar_year")
-    drop = gaps["nt_indigenous_2016"] - gaps["nt_indigenous_2025"]
 
     rogs = pd.read_parquet(SILVER / "rogs_attendance.parquet")
     attendance = rogs[
@@ -399,40 +479,17 @@ def build_static_dashboard() -> Path:
         f"of Years 1–10, down from {gaps['nt_indigenous_2016']}% in 2016. Non-Indigenous students in the NT attended "
         f"{gaps['nt_non_indigenous_2025']}%, level with Australia ({gaps['aust_non_indigenous_2025']}%)."
     )
-    kpis = "".join(
-        [
-            _kpi(
-                f"{gaps['nt_indigenous_2025']}%",
-                "NT Aboriginal attendance, Years 1–10, 2025",
-                f"Down {drop:.1f} percentage points from {gaps['nt_indigenous_2016']}% in 2016. "
-                f"Non-Indigenous students in the NT attended {gaps['nt_non_indigenous_2025']}%.",
-            ),
-            _kpi(
-                f"{remote_numbers['nt_very_remote']}%",
-                "Very remote NT, Aboriginal students, 2025",
-                f"Australia’s very remote rate is {remote_numbers['aust_very_remote']}%. "
-                f"Outer regional NT is {remote_numbers['nt_outer_regional']}%, level with the national "
-                f"{remote_numbers['aust_outer_regional']}%.",
-                "teal",
-            ),
-            _kpi(
-                f"{nt_ret.loc[2025, 'arr_indigenous']}%",
-                "Year 12 apparent retention, NT Aboriginal, 2025",
-                f"Western Australia is {wa_ret_2025:.1f}% on the same ABS measure. "
-                f"The NT rate was {nt_ret_2016:.1f}% in 2016.",
-            ),
-            _kpi(
-                f"${spend['total_nt']:,.0f}",
-                f"Funding per student, NT government, {spend['dollars']}",
-                f"Australia is ${spend['total_aust']:,.0f}. Higher spending has not closed the attendance gap.",
-                "navy",
-            ),
-        ]
-    )
     DASHBOARD_DIST.mkdir(parents=True, exist_ok=True)
     destination = DASHBOARD_DIST / "index.html"
     destination.write_text(
-        TEMPLATE.format(lede=lede, kpis=kpis, sections="\n".join(blocks), repo=REPO, readme=README, insights=INSIGHTS),
+        TEMPLATE.format(
+            lede=lede,
+            decision=decision_html(numbers),
+            sections="\n".join(blocks),
+            repo=REPO,
+            readme=README,
+            insights=INSIGHTS,
+        ),
         encoding="utf-8",
     )
     return destination

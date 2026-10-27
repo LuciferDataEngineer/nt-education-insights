@@ -31,6 +31,7 @@ from ntedu.charts import (  # noqa: E402
     year_level_attendance,
 )
 from ntedu.config import FIGURES, GOLD, SILVER  # noqa: E402
+from ntedu.decisions import decision_html  # noqa: E402
 
 REGIONS = ["Darwin", "Top End", "Central", "Big Rivers", "East Arnhem", "Barkly"]
 GEO_ORDER = ["Outer Regional", "Remote", "Very Remote"]
@@ -132,44 +133,36 @@ def _schools_view(schools: pd.DataFrame) -> pd.DataFrame:
 
 def _headline(numbers: dict) -> None:
     gaps = numbers["rogs_years_1_10_all_schools"]
-    remote = numbers["remoteness_2025_indigenous_years_1_10"]
-    spend = numbers["expenditure_per_fte_government_2023_24"]
-    kept = pd.DataFrame(numbers["apparent_retention_year7_to_12"])
-    nt_now = float(kept[(kept["jurisdiction"] == "NT") & (kept["calendar_year"] == 2025)]["arr_indigenous"].iloc[0])
-    nt_then = float(kept[(kept["jurisdiction"] == "NT") & (kept["calendar_year"] == 2016)]["arr_indigenous"].iloc[0])
-    wa_now = float(kept[(kept["jurisdiction"] == "WA") & (kept["calendar_year"] == 2025)]["arr_indigenous"].iloc[0])
-    drop = gaps["nt_indigenous_2016"] - gaps["nt_indigenous_2025"]
-    columns = st.columns(4)
-    columns[0].metric(
-        "NT Aboriginal attendance, 2025",
-        f"{gaps['nt_indigenous_2025']}%",
-        delta=f"{-drop:.1f} pp since 2016",
-        delta_color="inverse",
+    lede = (
+        f"In 2025, Aboriginal and Torres Strait Islander students in the NT attended {gaps['nt_indigenous_2025']}% "
+        f"of Years 1–10, down from {gaps['nt_indigenous_2016']}% in 2016. Non-Indigenous students in the NT attended "
+        f"{gaps['nt_non_indigenous_2025']}%, level with Australia ({gaps['aust_non_indigenous_2025']}%)."
     )
-    columns[1].metric(
-        "Very remote NT, Aboriginal",
-        f"{remote['nt_very_remote']}%",
-        delta=f"{remote['nt_very_remote'] - remote['aust_very_remote']:.1f} pp vs Australia",
-        delta_color="inverse",
+    st.html(
+        "<div style=\"background:#0B2545;color:#fff;padding:28px 28px 22px;border-bottom:6px solid #A84E1E;"
+        "border-radius:16px;margin:0 0 8px\">"
+        "<p style=\"margin:0 0 8px;color:#F3D7C8;font-size:12px;font-weight:680;letter-spacing:.08em;"
+        "text-transform:uppercase\">Northern Territory school education · public data · 26 October 2026</p>"
+        "<h1 style=\"margin:0;color:#fff;font-size:40px;line-height:1.05;letter-spacing:-.03em\">"
+        "The attendance gap is an Aboriginal gap.</h1>"
+        f"<p style=\"margin:12px 0 0;color:#E7EEF6;font-size:18px;line-height:1.45;max-width:46rem\">{lede}</p>"
+        "<p style=\"margin:16px 0 0;color:#F4F7FB;font-size:13px\">"
+        "<span style=\"display:inline-block;width:12px;height:12px;background:#A84E1E;border-radius:2px;"
+        "margin-right:6px\"></span>NT Aboriginal"
+        "&nbsp;&nbsp;<span style=\"display:inline-block;width:12px;height:12px;background:#0F6E6E;border-radius:2px;"
+        "margin-right:6px\"></span>NT non-Indigenous"
+        "&nbsp;&nbsp;<span style=\"display:inline-block;width:12px;height:12px;background:#4A5560;border-radius:2px;"
+        "margin-right:6px\"></span>Australia"
+        "&nbsp;&nbsp;<span style=\"display:inline-block;width:12px;height:12px;background:#1F7A4D;border-radius:2px;"
+        "margin-right:6px\"></span>On track"
+        "&nbsp;&nbsp;<span style=\"display:inline-block;width:12px;height:12px;background:#C58A12;border-radius:2px;"
+        "margin-right:6px\"></span>Watch"
+        "&nbsp;&nbsp;<span style=\"display:inline-block;width:12px;height:12px;background:#9B2C2C;border-radius:2px;"
+        "margin-right:6px\"></span>Concern"
+        "</p></div>"
     )
-    columns[2].metric(
-        "NT Aboriginal Year 12 retention",
-        f"{nt_now:.1f}%",
-        delta=f"{wa_now - nt_now:.1f} pp behind WA",
-        delta_color="off",
-    )
-    columns[3].metric(
-        f"Funding per student, {spend['dollars']}",
-        f"${spend['total_nt']:,.0f}",
-        delta=f"${spend['total_nt'] - spend['total_aust']:,.0f} vs Australia",
-        delta_color="off",
-    )
-    st.caption(
-        f"Years 1–10, all schools. Non-Indigenous students in the NT attended {gaps['nt_non_indigenous_2025']}%, "
-        f"level with Australia ({gaps['aust_non_indigenous_2025']}%). "
-        f"NT Aboriginal apparent retention was {nt_then:.1f}% in 2016. "
-        "The school filters in the sidebar do not change these four figures."
-    )
+    st.html(decision_html(numbers))
+    st.caption("The school filters in the sidebar do not change these decision metrics.")
 
 
 def _kpi_row(view: pd.DataFrame) -> None:
@@ -437,11 +430,6 @@ def main() -> None:
         page_icon=":material/school:",
         layout="wide",
         initial_sidebar_state="expanded",
-    )
-    st.title("The attendance gap is an Aboriginal gap")
-    st.caption(
-        "Public collections only. Retrieved 26 October 2026. "
-        "Government attendance is the NT Department of Education. National comparisons are RoGS, ABS, ACARA NAPLAN, and Closing the Gap."
     )
     try:
         frames = load_frames()

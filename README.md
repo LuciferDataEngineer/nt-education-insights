@@ -2,9 +2,28 @@
 
 [![Live dashboard](https://img.shields.io/badge/Live%20dashboard-GitHub%20Pages-2ea44f)](https://luciferdataengineer.github.io/nt-education-insights/)
 
-A reproducible account of attendance, NAPLAN, retention and resourcing in Northern Territory schools, set against the rest of Australia. The grain runs from a national time series down to a government school. The numbers are the published ones. Nothing in the marts is imputed to fill a suppressed cell.
+## Overview
 
-Aboriginal and Torres Strait Islander students in the NT attended **58.3%** of Years 1–10 in 2025, down from **68.6%** in 2016. Non-Indigenous students in the NT attended **89.4%**, the same as Australia (**89.7%**). In outer regional areas the Aboriginal rate matches the national figure (**77.1%** and **77.0%**). In very remote NT it is **45.8%**. The full reading is [INSIGHTS.md](INSIGHTS.md).
+This is a public, reproducible account of school attendance, NAPLAN, Year 12 retention and resourcing in the Northern Territory, set against the rest of Australia. It is written for education policymakers and for stakeholders in the NT Department of Education who need a short, sourced reading of tables the governments already publish. The grain runs from a national time series down to a government school. Nothing in the marts is imputed to fill a suppressed cell.
+
+The questions it answers:
+
+- Is the NT attendance gap an Aboriginal gap, and is it still widening?
+- Where does it sit: very remote schools, or the whole territory? Darwin, or Barkly and East Arnhem?
+- Are Year 3 reading and Year 12 retention moving, and how does retention compare with Western Australia?
+- Is the gap a resourcing gap? Students per teacher and dollars per student say no.
+- After Indigenous enrolment and parental socio-educational advantage, does remoteness still show up in the school data?
+
+Headline findings, all from `reports/key_numbers.json`:
+
+- NT Aboriginal attendance, Years 1–10, was **58.3%** in 2025, down from **68.6%** in 2016. The fitted decline on published years is **−1.19 points a year**. Non-Indigenous students in the NT attended **89.4%**, level with Australia (**89.7%**).
+- Very remote NT Aboriginal attendance was **45.8%**, against **54.2%** for very remote Australia. Outer regional NT matches the national figure (**77.1%** and **77.0%**). In government schools for the whole of 2024, Aboriginal attendance was **72.4%** in Darwin, **40.3%** in the Barkly and **39.0%** in East Arnhem.
+- **71.7%** of assessed Aboriginal Year 3 students in the NT needed additional reading support in 2025, and **26.1%** were absent. NT Aboriginal apparent retention to Year 12 was **34.9%**, against **69.7%** in Western Australia, and was **35.2%** in 2016.
+- NT government schools had **10.7** students per teacher in 2025, against **13.0** nationally, and spent **$32,223** per student in 2023–24, against **$26,140**. In 128 government schools, a very remote location is still associated with about **12.7 points** lower attendance after Indigenous enrolment and parental SEA (R² **0.859**). Remote is not distinguishable from outer regional.
+
+The full narrative is [INSIGHTS.md](INSIGHTS.md). The live dashboard is [https://luciferdataengineer.github.io/nt-education-insights/](https://luciferdataengineer.github.io/nt-education-insights/).
+
+Tech stack: Python 3.11+, DuckDB and pandas for the bronze / silver / gold pipeline, Plotly for the charts, Streamlit for the interactive app (`dashboard/app.py`), and a self-contained HTML page (`dashboard/dist/index.html`) deployed with GitHub Actions to GitHub Pages. Tests are pytest. Lint is ruff.
 
 ## Live dashboard
 
@@ -90,15 +109,72 @@ tests/              parsers, published-cell checks, dashboard build
 
 ## Data sources
 
-Retrieved 26 October 2026. `data/bronze/manifest.json` records the URL, the retrieval path, the byte size and the sha256 of each file.
+Retrieved 26 October 2026. `data/bronze/manifest.json` records the URL, the retrieval path, the byte size and the sha256 of each file. The tables below are one source each.
 
-| Source | What was used | Licence and attribution |
-| --- | --- | --- |
-| [NT Department of Education enrolment and attendance](https://education.nt.gov.au/education/statistics-research-and-reports/enrolment-and-attendance) | Government school, region, remoteness and year-level workbooks, 2016–2025 | Attribute the Northern Territory Department of Education. Live pages returned a Cloudflare challenge to this environment, so the workbooks were recovered from the Internet Archive. Original and archive URLs are in the manifest. |
-| [ACARA National Report on Schooling data portal](https://www.acara.edu.au/reporting/national-report-on-schooling-in-australia/data-portal) | School Profile 2008–2025, School Profile 2025, School Location 2025, Enrolments by Grade 2025, NAPLAN national results 2023, 2024 and 2026 | Attribute ACARA. NAPLAN from 2023 is the reset scale. School-level NAPLAN is not in this public file. |
-| [ABS Schools, 2025](https://www.abs.gov.au/statistics/people/education/schools/2025) | Tables 35b, 43a, 46a, 53a, 64a, 90a | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Attribute the Australian Bureau of Statistics. |
-| [Report on Government Services 2026, Part B, Section 4](https://www.pc.gov.au/ongoing/report-on-government-services/2026/child-care-education-and-training/school-education) | Attendance Tables 4A.16–4A.19 and recurrent expenditure Table 4A.32 | Attribute the Productivity Commission. |
-| [Closing the Gap, Outcome 5](https://www.pc.gov.au/closing-the-gap-data/dashboard/se/outcome-area5) | Annual data compilation, March 2026, learning potential | Attribute the Productivity Commission and the Closing the Gap data compilation. |
+### NT Department of Education, enrolment and attendance
+
+| | |
+| --- | --- |
+| Publisher | Northern Territory Department of Education |
+| Dataset / table | Government school, region, remoteness and year-level workbooks (the department’s Tables 1–4, plus term files for 2024 and 2025) |
+| URL | [Enrolment and attendance](https://education.nt.gov.au/education/statistics-research-and-reports/enrolment-and-attendance) |
+| Coverage years | 2016–2025 |
+| Granularity | School, region, remoteness area, and year level. Whole year, and term 1, 3 or 4 where the department published a term file. |
+| Licence | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The department’s copyright page licenses material on education.nt.gov.au under Creative Commons Attribution 4.0 International, excluding logos and third-party material. Attribute © Northern Territory of Australia (Department of Education). |
+| How it is used | Government-school attendance for the region chart, the school scatter, the map, and the school regression. This collection is whole-year (or term) government schools. It is not subtracted from the RoGS semester series. |
+| Access date | 26 October 2026. Live pages returned a Cloudflare challenge in this environment, so the workbooks were recovered from the Internet Archive. Original and archive URLs are in the manifest. |
+
+### ACARA, National Report on Schooling data portal
+
+| | |
+| --- | --- |
+| Publisher | Australian Curriculum, Assessment and Reporting Authority (ACARA) |
+| Dataset / table | School Profile 2008–2025, School Profile 2025, School Location 2025, Enrolments by Grade 2025, NAPLAN national results datasets for 2023, 2024 and 2026 |
+| URL | [Data portal](https://www.acara.edu.au/reporting/national-report-on-schooling-in-australia/data-portal) and the [Data Access Program](https://www.acara.edu.au/contact-us/acara-data-access) |
+| Coverage years | School profile 2008–2025. Location and enrolments by grade, 2025. NAPLAN national results in the 2023, 2024 and 2026 releases, which supply the 2023–2026 Year 3 cells used here. NAPLAN from 2023 is the reset scale. |
+| Granularity | School, for profile, location and grade enrolments. Jurisdiction by subgroup, year level and domain for NAPLAN. These NAPLAN files are national results, not school-level results. |
+| Licence | Not CC BY. ACARA’s Data Access Program says the school profile, location and enrolments files are available under the My School terms of use: personal or organisational non-commercial educational use, with attribution to ACARA, and not reproduction on a public website without ACARA’s written consent. Attribute Australian Curriculum, Assessment and Reporting Authority (ACARA). The national NAPLAN workbooks were downloaded from the data portal’s Excel releases and are attributed the same way. |
+| How it is used | School geolocation, coordinates, ICSEA, the bottom SEA quarter and Indigenous enrolment, joined to department schools. National NAPLAN proficiency and absence. |
+| Access date | 26 October 2026, from the publisher. File URLs are in the manifest. |
+
+### Australian Bureau of Statistics, Schools, 2025
+
+| | |
+| --- | --- |
+| Publisher | Australian Bureau of Statistics |
+| Dataset / table | Table 35b Count of all schools, 2010–2025. Table 43a FTE students, 2006–2025. Table 46a FTE students by remoteness, 2025. Table 53a student–teacher ratios, 2006–2025. Table 64a capped apparent retention rates, 2011–2025. Table 90a key information, 2024–2025. |
+| URL | [Schools, 2025](https://www.abs.gov.au/statistics/people/education/schools/2025) |
+| Coverage years | As in the table titles. The dashboard quotes 2016, 2021 and 2025 retention, and the 2025 student–teacher ratio. |
+| Granularity | State and territory, and Australia. Retention is by affiliation, sex and Indigenous status. The ratio used here is government schools. |
+| Licence | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Attribute the Australian Bureau of Statistics. |
+| How it is used | Apparent retention (NT against WA and the other states), students per teacher, and enrolment context. Apparent retention is capped and is not a cohort completion rate. |
+| Access date | 26 October 2026, from the publisher. |
+
+### Productivity Commission, Report on Government Services 2026
+
+| | |
+| --- | --- |
+| Publisher | Productivity Commission |
+| Dataset / table | Part B, Section 4, School education data tables. Attendance Tables 4A.16–4A.19. Recurrent expenditure Table 4A.32. |
+| URL | [School education](https://www.pc.gov.au/ongoing/report-on-government-services/2026/child-care-education-and-training/school-education) |
+| Coverage years | The 2026 release. Attendance in this project is Years 1–10, all schools, through 2025. 2020 attendance was not published in Table 4A.19. Expenditure is 2023–24 dollars. |
+| Granularity | State and territory, and Australia, by population and, in the remoteness table, by remoteness area. Semester 1, all schools. |
+| Licence | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) on Productivity Commission publications, excluding the Commonwealth Coat of Arms and third-party content. Attribute the Productivity Commission. An older data.gov.au record for RoGS lists CC BY 3.0 Australia; the Commission’s own publications use CC BY 4.0. |
+| How it is used | The national attendance series, the remoteness comparison, and government recurrent funding per student. |
+| Access date | 26 October 2026, from the publisher. |
+
+### Productivity Commission, Closing the Gap Outcome 5
+
+| | |
+| --- | --- |
+| Publisher | Productivity Commission, Closing the Gap data compilation |
+| Dataset / table | Outcome 5, learning potential. Annual data compilation of March 2026 (`ctg-202603-ctg05-learning-potential-dataset.csv`). |
+| URL | [Outcome area 5](https://www.pc.gov.au/closing-the-gap-data/dashboard/se/outcome-area5) |
+| Coverage years | The March 2026 compilation. The Year 12 or equivalent figure quoted for the NT is the 2021 census point (40.2% of Aboriginal and Torres Strait Islander people aged 20–24). |
+| Granularity | Jurisdiction and Australia, by the compilation’s population and indicator. |
+| Licence | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) on Productivity Commission publications, excluding the Commonwealth Coat of Arms and third-party content. Attribute the Productivity Commission. This series is not the ABS apparent retention rate. |
+| How it is used | Context for the Year 12 attainment target (national target 96% by 2031). It is kept separate from apparent retention. |
+| Access date | 26 October 2026, from the publisher. |
 
 Not used, and why:
 
@@ -185,6 +261,10 @@ streamlit run dashboard/app.py --server.port 8765
 
 ![Static dashboard](reports/screenshots/static_dashboard.png)
 
+![Static dashboard, phone width](reports/screenshots/static_dashboard_mobile.png)
+
+The full-page captures are `reports/screenshots/static_dashboard_full.png` and `reports/screenshots/static_dashboard_mobile_full.png`.
+
 ![Streamlit, territory view](reports/screenshots/streamlit_territory.png)
 
 ![Streamlit, schools](reports/screenshots/streamlit_schools.png)
@@ -192,6 +272,14 @@ streamlit run dashboard/app.py --server.port 8765
 ![Streamlit, school map](reports/screenshots/streamlit_map.png)
 
 ![Streamlit, Year 12](reports/screenshots/streamlit_year12.png)
+
+## Methodology
+
+Attendance trend. Ordinary least squares of NT Aboriginal Years 1–10 attendance, in percentage points, on calendar year. Published years only (n = 9). 2020 is omitted because RoGS did not publish it. The slope in `reports/key_numbers.json` is −1.188 points a year, shown on the dashboard as −1.19. R² is 0.917. The interval on the slope is −1.509 to −0.868.
+
+School regression. Weighted least squares for 2024 government schools with a published attendance rate and enrolment of at least 20 (n = 128). Weights are enrolment. Standard errors are HC1. The outcome is attendance in percentage points. The covariates are geolocation (reference category Outer Regional), Indigenous enrolment percent, and the share of students in the bottom parental SEA quarter. R² is 0.859. The very remote coefficient is −12.662 points. The remote coefficient is −1.149 points (p = 0.66), so remote is not distinguishable from outer regional. A second fit inside very remote schools only is stored beside it. The model describes co-movement. It is not an effect of remoteness, of Indigenous enrolment, or of funding, and it is not a school ranking.
+
+Dashboard status. Concern, Watch and On track are a reading rule for the page, not a target set by the NT Department of Education or the Productivity Commission. Concern means the rate is under 50%, the disadvantage against the stated benchmark is more than 10 points, or the fitted attendance decline is steeper than 1 point a year. Watch is a disadvantage of more than 3 points and up to 10, with the rate at least 50%. On track means the gap is within 3 points, or, for students per teacher and dollars per student, that the NT figure is the better-resourced side. Resource rows do not use the gap rule, because a higher NT spend is not a shortfall.
 
 ## Limitations
 
