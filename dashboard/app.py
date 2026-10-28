@@ -20,15 +20,18 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from ntedu.charts import (  # noqa: E402
     attendance_trend,
+    funding_comparison,
     naplan_support,
     region_comparison,
     remoteness_comparison,
     retention_chart,
+    retention_trend,
     school_map,
     school_scatter,
     year_level_attendance,
 )
 from ntedu.config import FIGURES, GOLD, SILVER  # noqa: E402
+from ntedu.decisions import decision_html  # noqa: E402
 
 REGIONS = ["Darwin", "Top End", "Central", "Big Rivers", "East Arnhem", "Barkly"]
 GEO_ORDER = ["Outer Regional", "Remote", "Very Remote"]
@@ -128,6 +131,40 @@ def _schools_view(schools: pd.DataFrame) -> pd.DataFrame:
     return view
 
 
+def _headline(numbers: dict) -> None:
+    gaps = numbers["rogs_years_1_10_all_schools"]
+    lede = (
+        f"In 2025, Aboriginal and Torres Strait Islander students in the NT attended {gaps['nt_indigenous_2025']}% "
+        f"of Years 1–10, down from {gaps['nt_indigenous_2016']}% in 2016. Non-Indigenous students in the NT attended "
+        f"{gaps['nt_non_indigenous_2025']}%, level with Australia ({gaps['aust_non_indigenous_2025']}%)."
+    )
+    st.html(
+        "<div style=\"background:#0B2545;color:#fff;padding:28px 28px 22px;border-bottom:6px solid #A84E1E;"
+        "border-radius:16px;margin:0 0 8px\">"
+        "<p style=\"margin:0 0 8px;color:#F3D7C8;font-size:12px;font-weight:680;letter-spacing:.08em;"
+        "text-transform:uppercase\">Northern Territory school education · public data · 26 October 2026</p>"
+        "<h1 style=\"margin:0;color:#fff;font-size:40px;line-height:1.05;letter-spacing:-.03em\">"
+        "The attendance gap is an Aboriginal gap.</h1>"
+        f"<p style=\"margin:12px 0 0;color:#E7EEF6;font-size:18px;line-height:1.45;max-width:46rem\">{lede}</p>"
+        "<p style=\"margin:16px 0 0;color:#F4F7FB;font-size:13px\">"
+        "<span style=\"display:inline-block;width:12px;height:12px;background:#A84E1E;border-radius:2px;"
+        "margin-right:6px\"></span>NT Aboriginal"
+        "&nbsp;&nbsp;<span style=\"display:inline-block;width:12px;height:12px;background:#0F6E6E;border-radius:2px;"
+        "margin-right:6px\"></span>NT non-Indigenous"
+        "&nbsp;&nbsp;<span style=\"display:inline-block;width:12px;height:12px;background:#4A5560;border-radius:2px;"
+        "margin-right:6px\"></span>Australia"
+        "&nbsp;&nbsp;<span style=\"display:inline-block;width:12px;height:12px;background:#1F7A4D;border-radius:2px;"
+        "margin-right:6px\"></span>On track"
+        "&nbsp;&nbsp;<span style=\"display:inline-block;width:12px;height:12px;background:#C58A12;border-radius:2px;"
+        "margin-right:6px\"></span>Watch"
+        "&nbsp;&nbsp;<span style=\"display:inline-block;width:12px;height:12px;background:#9B2C2C;border-radius:2px;"
+        "margin-right:6px\"></span>Concern"
+        "</p></div>"
+    )
+    st.html(decision_html(numbers))
+    st.caption("The school filters in the sidebar do not change these decision metrics.")
+
+
 def _kpi_row(view: pd.DataFrame) -> None:
     published = view[view["attendance_rate"].notna()]
     weighted = _weighted(published, "attendance_rate")
@@ -152,10 +189,20 @@ def _attendance_tab(frames: dict[str, pd.DataFrame], numbers: dict) -> None:
         f"attended **{gaps['nt_non_indigenous_2025']}%**, against **{gaps['aust_non_indigenous_2025']}%** nationally."
     )
     _show(attendance_trend(frames["attendance"]))
-    st.caption("Productivity Commission, Report on Government Services 2026, Table 4A.19. Semester 1. 2020 was not published. All schools, Years 1–10.")
-    remote = frames["remoteness"][frames["remoteness"]["calendar_year"] == 2025]
+    st.caption(
+        "RoGS Table 4A.19, Semester 1, Years 1–10. Solid lines are the NT. Dashed lines are Australia. "
+        "2020 was not published. All-student series are omitted so the Aboriginal and non-Indigenous lines can be read."
+    )
+    remote_numbers = numbers["remoteness_2025_indigenous_years_1_10"]
+    remote = frames["remoteness"][
+        (frames["remoteness"]["calendar_year"] == 2025) & (frames["remoteness"]["jurisdiction"].isin(["NT", "Aust"]))
+    ]
     _show(remoteness_comparison(remote))
-    st.caption("Table 4A.16, Aboriginal and Torres Strait Islander students, 2025. Outer regional NT matches Australia. Very remote NT does not.")
+    st.caption(
+        "Table 4A.16, Aboriginal and Torres Strait Islander students, 2025. "
+        f"WA very remote is {remote_numbers['wa_very_remote_indigenous']}%; "
+        f"Queensland is {remote_numbers['qld_very_remote_indigenous']}%."
+    )
 
     regions = frames["regions"]
     region_years = sorted(int(year) for year in regions["calendar_year"].unique())
@@ -208,6 +255,7 @@ def _attendance_tab(frames: dict[str, pd.DataFrame], numbers: dict) -> None:
 
 
 def _schools_tab(view: pd.DataFrame) -> None:
+    _kpi_row(view)
     if view.empty:
         st.info("No government schools match these filters. Widen remoteness, school type, or the name search.")
         return
@@ -311,15 +359,27 @@ def _naplan_tab(naplan: pd.DataFrame, numbers: dict) -> None:
 
 
 def _gap_tab(retention: pd.DataFrame, numbers: dict) -> None:
-    latest = retention[
+    series = retention[
+        (retention["year_range"] == "Year 7/8 - Year 12")
+        & (retention["sector"] == "All affiliations")
+        & (retention["sex"] == "Persons")
+        & (retention["jurisdiction"].isin(["NT", "WA"]))
+    ]
+    _show(retention_trend(series))
+    st.caption("ABS Schools, Table 64a, Aboriginal apparent retention from Year 7/8 to Year 12. The NT line stays near 35% while Western Australia rises. Not a true cohort rate.")
+    latest = series[series["calendar_year"] == 2025]
+    others = retention[
         (retention["year_range"] == "Year 7/8 - Year 12")
         & (retention["sector"] == "All affiliations")
         & (retention["sex"] == "Persons")
         & (retention["calendar_year"] == 2025)
         & (retention["jurisdiction"].isin(["NT", "WA", "Qld", "SA"]))
     ]
-    _show(retention_chart(latest))
-    st.caption("ABS Schools 2025, Table 64a, capped apparent retention. A rate can exceed 100 where students repeat or migrate in, which is why the Bureau caps it. It is not a true cohort completion rate.")
+    _show(retention_chart(others if not others.empty else latest))
+    st.caption("Same measure in 2025, Aboriginal and non-Indigenous, for the jurisdictions nearest the comparison.")
+    spend = numbers["expenditure_per_fte_government_2023_24"]
+    _show(funding_comparison(spend["total_nt"], spend["total_aust"]))
+    st.caption(f"RoGS Table 4A.32, government recurrent funding per FTE student, {spend['dollars']}.")
     actual = pd.DataFrame(numbers["closing_the_gap_year12"]["actual"])
     actual = actual[actual["year_label"].isin(["2016", "2021"])]
     pivot = actual.pivot(index="jurisdiction", columns="year_label", values="value").reindex(
@@ -371,8 +431,6 @@ def main() -> None:
         layout="wide",
         initial_sidebar_state="expanded",
     )
-    st.title("School education in the Northern Territory")
-    st.caption("Public collections only. Retrieved 26 October 2026. Government attendance is the NT Department of Education. National comparisons are RoGS, ABS, ACARA NAPLAN, and Closing the Gap.")
     try:
         frames = load_frames()
         numbers = _load_numbers()
@@ -386,7 +444,7 @@ def main() -> None:
         return
 
     view = _schools_view(frames["schools"])
-    _kpi_row(view)
+    _headline(numbers)
     territory, schools, naplan, gap = st.tabs(["Territory and Australia", "Schools", "NAPLAN", "Year 12 and Closing the Gap"])
     with territory:
         _attendance_tab(frames, numbers)
